@@ -7,8 +7,8 @@ generator client {
 
 datasource db {
         provider = "postgresql"
-        //   url      = env("DATABASE_URL")
-        url      = "postgresql://medimandu-t_owner:npg_kXj1AdcF5zNQ@ep-wild-bush-a8g8vk33-pooler.eastus2.azure.neon.tech/medimandu-t?sslmode=require&channel_binding=require"
+        url      = env("DATABASE_URL")
+        // url      = "postgresql://medimandu-t_owner:npg_kXj1AdcF5zNQ@ep-wild-bush-a8g8vk33-pooler.eastus2.azure.neon.tech/medimandu-t?sslmode=require&channel_binding=require"
 }
 
 // ENUMS
