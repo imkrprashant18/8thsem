@@ -37,7 +37,12 @@ export default function RootLayout({
             </main>
             <footer className="bg-muted/50 py-12">
               <div className="container mx-auto px-4 text-center text-gray-200">
-                <p>Made with love by Taskmandu Team</p>
+                <p>
+                  Made with <span className="text-red-500">❤️</span> by{" "}
+                  <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent font-semibold">
+                    Taskmandu Team
+                  </span>
+                </p>
               </div>
             </footer>
           </ThemeProvider>

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import {
@@ -20,16 +19,12 @@ const Header = async () => {
         }
         return (
                 <>
-                        <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-10 supports-[backdrop-filter]:bg-background/60">
+                        <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md  supports-[backdrop-filter]:bg-background/60 z-50">
                                 <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
                                         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-                                                <Image
-                                                        src="/logo-single.png"
-                                                        alt="Medimeet Logo"
-                                                        width={200}
-                                                        height={60}
-                                                        className="h-10 w-auto object-contain"
-                                                />
+                                                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+                                                        Medimandu
+                                                </div>
                                         </Link>
                                         {/* Action Buttons */}
                                         <div className="flex items-center space-x-2">
@@ -103,10 +98,10 @@ const Header = async () => {
                                                         <Link href={user?.role === "PATIENT" ? "/pricing" : "/doctor"}>
                                                                 <Badge
                                                                         variant="outline"
-                                                                        className="h-9 bg-emerald-900/20 border-emerald-700/30 px-3 py-1 flex items-center gap-2"
+                                                                        className="h-9 bg-amber-900/20 border-amber-700/30 px-3 py-1 flex items-center gap-2"
                                                                 >
-                                                                        <CreditCard className="h-3.5 w-3.5 text-emerald-400" />
-                                                                        <span className="text-emerald-400">
+                                                                        <CreditCard className="h-3.5 w-3.5 text-amber-400" />
+                                                                        <span className="text-amber-400">
                                                                                 {user && user.role !== "ADMIN" ? (
                                                                                         <>
                                                                                                 {user.credits}{" "}

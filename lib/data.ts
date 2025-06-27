@@ -11,71 +11,72 @@ import {
 export const features = [
   {
     icon: User,
-    title: "Create Your Profile",
+    title: "Personalized Onboarding",
     description:
-      "Sign up and complete your profile to get personalized healthcare recommendations and services.",
+      "Create your profile to unlock tailored health services and smarter doctor matching.",
   },
   {
     icon: Calendar,
-    title: "Book Appointments",
+    title: "Flexible Scheduling",
     description:
-      "Browse doctor profiles, check availability, and book appointments that fit your schedule.",
+      "Easily view doctor availability and book slots that work with your lifestyle — no calls needed.",
   },
   {
     icon: Video,
-    title: "Video Consultation",
+    title: "Instant Video Visits",
     description:
-      "Connect with doctors through secure, high-quality video consultations from the comfort of your home.",
+      "Get real-time medical advice through secure video calls, anytime and anywhere.",
   },
   {
     icon: CreditCard,
-    title: "Consultation Credits",
+    title: "Smart Credit System",
     description:
-      "Purchase credit packages that fit your healthcare needs with our simple subscription model.",
+      "Buy credits in advance and use them whenever you or your family need a consultation.",
   },
   {
     icon: ShieldCheck,
-    title: "Verified Doctors",
+    title: "Trusted Professionals",
     description:
-      "All healthcare providers are carefully vetted and verified to ensure quality care.",
+      "Every doctor on our platform is licensed, verified, and reviewed for your peace of mind.",
   },
   {
     icon: FileText,
-    title: "Medical Documentation",
+    title: "Your Health Records",
     description:
-      "Access and manage your appointment history, doctor's notes, and medical recommendations.",
+      "Keep all your prescriptions, reports, and past consultations organized in one secure place.",
   },
 ];
+
 
 // JSON data for testimonials
 export const testimonials = [
   {
-    initials: "SP",
-    name: "Sarah P.",
+    initials: "AK",
+    name: "Anita K.",
     role: "Patient",
     quote:
-      "The video consultation feature saved me so much time. I was able to get medical advice without taking time off work or traveling to a clinic.",
+      "Booking a consultation was seamless. I received expert guidance right from my home — no traffic, no waiting rooms.",
   },
   {
-    initials: "DR",
-    name: "Dr. Robert M.",
-    role: "Cardiologist",
+    initials: "DH",
+    name: "Dr. Hari D.",
+    role: "Dermatologist",
     quote:
-      "This platform has revolutionized my practice. I can now reach more patients and provide timely care without the constraints of a physical office.",
+      "The platform has expanded my reach significantly. I'm able to consult patients across the country with ease and flexibility.",
   },
   {
-    initials: "JT",
-    name: "James T.",
-    role: "Patient",
+    initials: "MR",
+    name: "Manoj R.",
+    role: "Caregiver",
     quote:
-      "The credit system is so convenient. I purchased a package for my family, and we've been able to consult with specialists whenever needed.",
+      "Using credits made managing my parents' health so much easier. It’s cost-effective and incredibly accessible.",
   },
 ];
 
 // JSON data for credit system benefits
 export const creditBenefits = [
-  "Each consultation requires <strong class='text-emerald-400'>2 credits</strong> regardless of duration",
-  "Credits <strong class='text-emerald-400'>never expire</strong> - use them whenever you need",
-  "Monthly subscriptions give you <strong class='text-emerald-400'>fresh credits every month</strong>",
-  "Cancel or change your subscription <strong class='text-emerald-400'>anytime</strong> without penalties",
+  "Every session costs just <strong class='text-amber-400'>2 credits</strong> — no matter how long it lasts",
+  "<strong class='text-amber-400'>Your credits stay active forever</strong> — no expiration dates",
+  "Get a new batch of <strong class='text-amber-400'>monthly credits</strong> with your subscription",
+  "You're free to <strong class='text-amber-400'>upgrade, downgrade, or cancel</strong> anytime",
 ];
