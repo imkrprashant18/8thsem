@@ -32,10 +32,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange>
             <Header />
-            <main className="min-h-screen">
+            <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
               {children}
             </main>
-            <footer className="bg-muted/50 py-12">
+            <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12">
               <div className="container mx-auto px-4 text-center text-gray-200">
                 <p>
                   Made with <span className="text-red-500">❤️</span> by{" "}
