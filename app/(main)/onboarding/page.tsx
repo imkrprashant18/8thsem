@@ -88,7 +88,6 @@ export default function OnboardingPage() {
                         description: data.description,
                 });
         };
-
         // Role selection screen
         if (step === "choose-role") {
                 return (
@@ -98,8 +97,8 @@ export default function OnboardingPage() {
                                         onClick={() => !loading && handlePatientSelection()}
                                 >
                                         <CardContent className="pt-6 pb-6 flex flex-col items-center text-center">
-                                                <div className="p-4 bg-emerald-900/20 rounded-full mb-4">
-                                                        <User className="h-8 w-8 text-emerald-400" />
+                                                <div className="p-4 bg-amber-900/20 rounded-full mb-4">
+                                                        <User className="h-8 w-8 text-amber-400" />
                                                 </div>
                                                 <CardTitle className="text-xl font-semibold text-white mb-2">
                                                         Join as a Patient
@@ -129,8 +128,8 @@ export default function OnboardingPage() {
                                         onClick={() => !loading && setStep("doctor-form")}
                                 >
                                         <CardContent className="pt-6 pb-6 flex flex-col items-center text-center">
-                                                <div className="p-4 bg-emerald-900/20 rounded-full mb-4">
-                                                        <Stethoscope className="h-8 w-8 text-emerald-400" />
+                                                <div className="p-4 bg-amber-900/20 rounded-full mb-4">
+                                                        <Stethoscope className="h-8 w-8 text-amber-400" />
                                                 </div>
                                                 <CardTitle className="text-xl font-semibold text-white mb-2">
                                                         Join as a Doctor
@@ -140,7 +139,7 @@ export default function OnboardingPage() {
                                                         provide consultations
                                                 </CardDescription>
                                                 <Button
-                                                        className="w-full mt-2 bg-amber-600 hover:bg-emerald-700"
+                                                        className="w-full mt-2 bg-amber-600 hover:bg-amber-700"
                                                         disabled={!!loading}
                                                 >
                                                         Continue as Doctor
@@ -154,7 +153,8 @@ export default function OnboardingPage() {
         // Doctor registration form
         if (step === "doctor-form") {
                 return (
-                        <Card className="border-emerald-900/20">
+                        <Card className=" bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 border-[1px] border-amber-200" >
+
                                 <CardContent className="pt-6">
                                         <div className="mb-6">
                                                 <CardTitle className="text-2xl font-bold text-white mb-2">
@@ -175,14 +175,14 @@ export default function OnboardingPage() {
                                                                 <SelectTrigger id="specialty">
                                                                         <SelectValue placeholder="Select your specialty" />
                                                                 </SelectTrigger>
-                                                                <SelectContent>
+                                                                <SelectContent className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
                                                                         {SPECIALTIES.map((spec) => (
                                                                                 <SelectItem
                                                                                         key={spec.name}
                                                                                         value={spec.name}
-                                                                                        className="flex items-center gap-2"
+                                                                                        className="flex items-center gap-2 "
                                                                                 >
-                                                                                        <span className="text-emerald-400">{spec.icon && <spec.icon />}</span>
+                                                                                        <span className="text-amber-400 hover:bg-amber-400">{spec.icon && <spec.icon />}</span>
                                                                                         {spec.name}
                                                                                 </SelectItem>
                                                                         ))}
@@ -248,14 +248,14 @@ export default function OnboardingPage() {
                                                                 type="button"
                                                                 variant="outline"
                                                                 onClick={() => setStep("choose-role")}
-                                                                className="border-emerald-900/30"
+                                                                className="border-amber-900/30"
                                                                 disabled={!!loading}
                                                         >
                                                                 Back
                                                         </Button>
                                                         <Button
                                                                 type="submit"
-                                                                className="bg-emerald-600 hover:bg-emerald-700"
+                                                                className="bg-amber-600 hover:bg-amber-700"
                                                                 disabled={!!loading}
                                                         >
                                                                 {loading ? (
