@@ -77,6 +77,7 @@ export function PendingDoctors({ doctors }: PendingDoctorsProps) {
                 };
 
                 await submitStatusUpdate(formData);
+                setSelectedDoctor(null);
                 await getPendingDoctors(); // Refresh the list after status change
         };
 
@@ -260,7 +261,7 @@ export function PendingDoctors({ doctors }: PendingDoctorsProps) {
                                                         </div>
                                                 </div>
 
-                                                {loading && <BarLoader width={"100%"} color="#36d7b7" />}
+                                                {loading && <BarLoader width={"100%"} color="#FFBF00" />}
 
                                                 <DialogFooter className="flex sm:justify-between">
                                                         <Button

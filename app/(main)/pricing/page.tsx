@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import Pricing from "@/components/pricing";
 export default async function PricingPage() {
         return (
-                <div className=" px-4 py-12 w-full  bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+                <div className=" px-4 py-12 w-full  bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 -mt-4">
                         {/* Header Section */}
                         <div className="flex justify-start mb-2">
                                 <Link

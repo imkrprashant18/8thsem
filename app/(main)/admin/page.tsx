@@ -6,9 +6,7 @@ import { VerifiedDoctors } from "./components/verified-doctor";
 import { PendingPayouts } from "./components/pending-payout";
 import { useAdminStore } from "@/store/admin-store";
 import { useEffect } from "react";
-
 export default function AdminPage() {
-
         const pendingDoctors = useAdminStore((state) => state.pendingDoctors);
         const getPendingDoctors = useAdminStore((state) => state.getPendingDoctors);
         const doctors = useAdminStore((state) => state.doctors);

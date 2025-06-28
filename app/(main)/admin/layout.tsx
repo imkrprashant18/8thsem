@@ -7,20 +7,16 @@ export const metadata = {
         title: "Admin Settings - Medimandu",
         description: "Manage doctors, patients, and platform settings",
 };
-
 import { ReactNode } from "react";
-
 export default async function AdminLayout({ children }: { children: ReactNode }) {
         // Verify the user has admin access
         const isAdmin = await verifyAdmin();
-
         // Redirect if not an admin
         if (!isAdmin) {
                 redirect("/onboarding");
         }
-
         return (
-                <div className="container mx-auto px-4 py-8">
+                <div className="container mx-auto px-4 py-8 -mt-4">
                         <PageHeader icon={<ShieldCheck />} title="Admin Settings" />
 
                         {/* Vertical tabs on larger screens / Horizontal tabs on mobile */}

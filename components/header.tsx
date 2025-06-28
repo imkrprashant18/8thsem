@@ -31,18 +31,29 @@ const Header = async () => {
                                                 <SignedIn>
                                                         {/* Admin Links */}
                                                         {user?.role === "ADMIN" && (
-                                                                <Link href="/admin">
-                                                                        <Button
-                                                                                variant="outline"
-                                                                                className="hidden md:inline-flex items-center gap-2"
-                                                                        >
-                                                                                <ShieldCheck className="h-4 w-4" />
-                                                                                Admin Dashboard
-                                                                        </Button>
-                                                                        <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
-                                                                                <ShieldCheck className="h-4 w-4" />
-                                                                        </Button>
-                                                                </Link>
+                                                                <>
+                                                                        <Link href="/admin">
+                                                                                <Button
+                                                                                        variant="outline"
+                                                                                        className="hidden md:inline-flex items-center gap-2"
+                                                                                >
+                                                                                        <ShieldCheck className="h-4 w-4" />
+                                                                                        Admin Dashboard
+                                                                                </Button>
+                                                                                <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
+                                                                                        <ShieldCheck className="h-4 w-4" />
+                                                                                </Button>
+                                                                        </Link>
+                                                                        <Link href="/doctors">
+                                                                                <Button
+                                                                                        variant="outline"
+                                                                                        className="hidden md:inline-flex items-center gap-2"
+                                                                                >
+                                                                                        <ShieldCheck className="h-4 w-4" />
+                                                                                        Doctors
+                                                                                </Button>
+                                                                        </Link>
+                                                                </>
                                                         )}
 
                                                         {/* Doctor Links */}
@@ -95,28 +106,39 @@ const Header = async () => {
                                                 </SignedIn>
 
                                                 {(!user || user?.role !== "ADMIN") && (
-                                                        <Link href={user?.role === "PATIENT" ? "/pricing" : "/doctor"}>
-                                                                <Badge
-                                                                        variant="outline"
-                                                                        className="h-9 bg-amber-900/20 border-amber-700/30 px-3 py-1 flex items-center gap-2"
-                                                                >
-                                                                        <CreditCard className="h-3.5 w-3.5 text-amber-400" />
-                                                                        <span className="text-amber-400">
-                                                                                {user && user.role !== "ADMIN" ? (
-                                                                                        <>
-                                                                                                {user.credits}{" "}
-                                                                                                <span className="hidden md:inline">
-                                                                                                        {user?.role === "PATIENT"
-                                                                                                                ? "Credits"
-                                                                                                                : "Earned Credits"}
-                                                                                                </span>
-                                                                                        </>
-                                                                                ) : (
-                                                                                        <>Pricing</>
-                                                                                )}
-                                                                        </span>
-                                                                </Badge>
-                                                        </Link>
+                                                        <>
+                                                                <Link href={user?.role === "PATIENT" ? "/pricing" : "/doctor"}>
+                                                                        <Badge
+                                                                                variant="outline"
+                                                                                className="h-9 bg-amber-900/20 border-amber-700/30 px-3 py-1 flex items-center gap-2"
+                                                                        >
+                                                                                <CreditCard className="h-3.5 w-3.5 text-amber-400" />
+                                                                                <span className="text-amber-400">
+                                                                                        {user && user.role !== "ADMIN" ? (
+                                                                                                <>
+                                                                                                        {user.credits}{" "}
+                                                                                                        <span className="hidden md:inline">
+                                                                                                                {user?.role === "PATIENT"
+                                                                                                                        ? "Credits"
+                                                                                                                        : "Earned Credits"}
+                                                                                                        </span>
+                                                                                                </>
+                                                                                        ) : (
+                                                                                                <>Pricing</>
+                                                                                        )}
+                                                                                </span>
+                                                                        </Badge>
+                                                                </Link>
+                                                                <Link href="/doctors">
+                                                                        <Button
+                                                                                variant="outline"
+                                                                                className="hidden md:inline-flex items-center gap-2"
+                                                                        >
+                                                                                <ShieldCheck className="h-4 w-4" />
+                                                                                Doctors
+                                                                        </Button>
+                                                                </Link>
+                                                        </>
                                                 )}
                                                 <SignedOut>
                                                         <SignInButton >
