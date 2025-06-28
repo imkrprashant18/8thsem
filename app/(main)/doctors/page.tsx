@@ -13,7 +13,7 @@ export default async function DoctorsPage() {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
                                 {SPECIALTIES.map((specialty) => (
-                                        <Link key={specialty.name} href={`/doctors/${specialty.name}`}>
+                                        <Link key={specialty.name} href={`/doctors?${specialty.name}`}>
                                                 <Card className="hover:border-amber-700/40 transition-all cursor-pointer border-amber-900/20 h-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600">
                                                         <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
                                                                 <div className="w-12 h-12 rounded-full bg-amber-900/20 flex items-center justify-center mb-4">

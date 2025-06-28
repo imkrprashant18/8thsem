@@ -166,13 +166,13 @@ export default function OnboardingPage() {
                                         </div>
 
                                         <form onSubmit={handleSubmit(onDoctorSubmit)} className="space-y-6">
-                                                <div className="space-y-2">
+                                                <div className="space-y-2 w-full" >
                                                         <Label htmlFor="specialty">Medical Specialty</Label>
                                                         <Select
                                                                 value={specialtyValue}
                                                                 onValueChange={(value) => setValue("specialty", value)}
                                                         >
-                                                                <SelectTrigger id="specialty">
+                                                                <SelectTrigger id="specialty" className="w-full">
                                                                         <SelectValue placeholder="Select your specialty" />
                                                                 </SelectTrigger>
                                                                 <SelectContent className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">

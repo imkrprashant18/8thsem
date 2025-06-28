@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-providers";
 import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({
             <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
               {children}
             </main>
+            <Toaster richColors />
             <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12">
               <div className="container mx-auto px-4 text-center text-gray-200">
                 <p>
