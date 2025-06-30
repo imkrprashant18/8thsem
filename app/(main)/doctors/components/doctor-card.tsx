@@ -4,23 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import type { User as Doctor } from "@prisma/client";
 
-interface Doctor {
-        id: string;
-        clerkUserId: string;
-        email: string;
-        name?: string;
-        imageUrl?: string;
-        role: "UNASSIGNED" | "PATIENT" | "DOCTOR" | "ADMIN"; // Adjust based on your enum
-        createdAt: string;
-        updatedAt: string;
-        credits: number;
-        specialty?: string;
-        experience?: number;
-        credentialUrl?: string;
-        description?: string;
-        verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
-}
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
         return (
                 <Card className="border-amber-900/20 hover:border-amber-700/40 transition-all bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600">

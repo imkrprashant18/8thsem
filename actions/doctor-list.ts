@@ -1,58 +1,31 @@
-"use server";
+"use server"
+
 
 import { db } from "@/lib/prisma";
+import type { User } from "@prisma/client";
 
 interface GetDoctorsBySpecialtyResult {
-        doctors?: Doctor[];
+        doctors?: User[];
         error?: string;
 }
-
-interface Doctor {
-        id: string;
-        clerkUserId: string;
-        email: string;
-        name?: string;
-        imageUrl?: string;
-        role: "UNASSIGNED" | "PATIENT" | "DOCTOR" | "ADMIN"; // Adjust based on your enum
-        createdAt: string;
-        updatedAt: string;
-        credits: number;
-        specialty?: string;
-        experience?: number;
-        credentialUrl?: string;
-        description?: string;
-        verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
-}
-
+/**
+ * Get doctors by specialty
+ * @param specialty The medical specialty to filter doctors by
+ */
 export async function getDoctorsBySpecialty(specialty: string): Promise<GetDoctorsBySpecialtyResult> {
         try {
-                const users = await db.user.findMany({
+                const normalizedSpecialty = decodeURIComponent(specialty);
+
+                const doctors = await db.user.findMany({
                         where: {
                                 role: "DOCTOR",
                                 verificationStatus: "VERIFIED",
-                                specialty: specialty.split("%20").join(" "),
+                                specialty: normalizedSpecialty,
                         },
                         orderBy: {
                                 name: "asc",
                         },
                 });
-
-                const doctors: Doctor[] = users.map((user) => ({
-                        id: user.id,
-                        clerkUserId: user.clerkUserId,
-                        email: user.email,
-                        name: user.name ?? undefined,
-                        imageUrl: user.imageUrl ?? undefined,
-                        role: user.role,
-                        createdAt: user.createdAt.toISOString(),
-                        updatedAt: user.updatedAt.toISOString(),
-                        credits: user.credits,
-                        specialty: user.specialty ?? undefined,
-                        experience: user.experience ?? undefined,
-                        credentialUrl: user.credentialUrl ?? undefined,
-                        description: user.description ?? undefined,
-                        verificationStatus: user.verificationStatus ?? undefined,
-                }));
 
                 return { doctors };
         } catch (error) {

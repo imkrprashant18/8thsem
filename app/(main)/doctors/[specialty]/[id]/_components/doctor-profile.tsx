@@ -1,9 +1,8 @@
-// /app/doctors/[id]/_components/doctor-profile.jsx
 "use client";
-
-import { useState } from "react";
-import Image from "next/image";
-// import { useRouter } from "next/navigation";
+import React, { useState } from 'react'
+import Image from 'next/image';
+import type { User as Doctor } from "@prisma/client";
+import { useRouter } from 'next/navigation';
 import {
         User,
         Calendar,
@@ -25,46 +24,35 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { SlotPicker } from "./slot-picker";
-// import { AppointmentForm } from "./appointment-form";
+import { AppointmentForm } from "./appointment-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Define types for doctor and availableDays
-interface Doctor {
-        id: string;
-        name: string;
-        imageUrl?: string;
-        specialty: string;
-        experience: number;
-        description: string;
-}
 
-interface Slot {
+type Slot = {
         startTime: string;
+        endTime: string;
         // Add other slot properties if needed
-}
-
-interface AvailableDay {
+};
+interface DayWithSlots {
         date: string;
-        slots: Slot[];
+        slots: Slot[]; // Array of Slot objects
 }
-
 
 interface DoctorProfileProps {
+        patientId: string;
         doctor: Doctor;
-        availableDays: AvailableDay[];
+        availableDays: DayWithSlots[];
 }
 
-export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
+export function DoctorProfile({ doctor, availableDays, patientId }: DoctorProfileProps) {
         const [showBooking, setShowBooking] = useState(false);
         const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-        // const router = useRouter();
-
+        const router = useRouter();
         // Calculate total available slots
         const totalSlots = availableDays?.reduce(
                 (total, day) => total + day.slots.length,
                 0
         );
-
         const toggleBooking = () => {
                 setShowBooking(!showBooking);
                 if (!showBooking) {
@@ -81,29 +69,28 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                 setSelectedSlot(slot);
         };
 
-        // const handleBookingComplete = () => {
-        //         router.push("/appointments");
-        // };
-
+        const handleBookingComplete = () => {
+                router.push("/appointments");
+        };
         return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Left column - Doctor Photo and Quick Info (fixed on scroll) */}
                         <div className="md:col-span-1">
                                 <div className="md:sticky md:top-24">
-                                        <Card className="border-emerald-900/20">
+                                        <Card className="border-amber-900/20 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                                 <CardContent className="pt-6">
                                                         <div className="flex flex-col items-center text-center">
-                                                                <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4 bg-emerald-900/20">
+                                                                <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4 bg-amber-900/20">
                                                                         {doctor.imageUrl ? (
                                                                                 <Image
                                                                                         src={doctor.imageUrl}
-                                                                                        alt={doctor.name}
+                                                                                        alt={doctor.name ?? "Doctor profile photo"}
                                                                                         fill
                                                                                         className="object-cover"
                                                                                 />
                                                                         ) : (
                                                                                 <div className="w-full h-full flex items-center justify-center">
-                                                                                        <User className="h-16 w-16 text-emerald-400" />
+                                                                                        <User className="h-16 w-16 text-amber-400" />
                                                                                 </div>
                                                                         )}
                                                                 </div>
@@ -114,13 +101,13 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
 
                                                                 <Badge
                                                                         variant="outline"
-                                                                        className="bg-emerald-900/20 border-emerald-900/30 text-emerald-400 mb-4"
+                                                                        className="bg-amber-900/20 border-amber-900/30 text-amber-400 mb-4"
                                                                 >
                                                                         {doctor.specialty}
                                                                 </Badge>
 
                                                                 <div className="flex items-center justify-center mb-2">
-                                                                        <Medal className="h-4 w-4 text-emerald-400 mr-2" />
+                                                                        <Medal className="h-4 w-4 text-amber-400 mr-2" />
                                                                         <span className="text-muted-foreground">
                                                                                 {doctor.experience} years experience
                                                                         </span>
@@ -128,7 +115,7 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
 
                                                                 <Button
                                                                         onClick={toggleBooking}
-                                                                        className="w-full bg-emerald-600 hover:bg-emerald-700 mt-4"
+                                                                        className="w-full bg-amber-600 hover:bg-amber-700 mt-4"
                                                                 >
                                                                         {showBooking ? (
                                                                                 <>
@@ -150,7 +137,7 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
 
                         {/* Right column - Doctor Details and Booking Section */}
                         <div className="md:col-span-2 space-y-6">
-                                <Card className="border-emerald-900/20">
+                                <Card className="border-amber-900/20  bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                         <CardHeader>
                                                 <CardTitle className="text-xl font-bold text-white">
                                                         About Dr. {doctor.name}
@@ -162,7 +149,7 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                         <CardContent className="space-y-6">
                                                 <div className="space-y-4">
                                                         <div className="flex items-center gap-2">
-                                                                <FileText className="h-5 w-5 text-emerald-400" />
+                                                                <FileText className="h-5 w-5 text-amber-400" />
                                                                 <h3 className="text-white font-medium">Description</h3>
                                                         </div>
                                                         <p className="text-muted-foreground whitespace-pre-line">
@@ -170,16 +157,16 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                                         </p>
                                                 </div>
 
-                                                <Separator className="bg-emerald-900/20" />
+                                                <Separator className="bg-amber-900/20" />
 
                                                 <div className="space-y-4">
                                                         <div className="flex items-center gap-2">
-                                                                <Clock className="h-5 w-5 text-emerald-400" />
+                                                                <Clock className="h-5 w-5 text-amber-400" />
                                                                 <h3 className="text-white font-medium">Availability</h3>
                                                         </div>
                                                         {totalSlots > 0 ? (
                                                                 <div className="flex items-center">
-                                                                        <Calendar className="h-5 w-5 text-emerald-400 mr-2" />
+                                                                        <Calendar className="h-5 w-5 text-amber-400 mr-2" />
                                                                         <p className="text-muted-foreground">
                                                                                 {totalSlots} time slots available for booking over the next
                                                                                 4 days
@@ -201,7 +188,7 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                 {/* Booking Section - Conditionally rendered */}
                                 {showBooking && (
                                         <div id="booking-section">
-                                                <Card className="border-emerald-900/20">
+                                                <Card className="border-amber-900/20  bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                                         <CardHeader>
                                                                 <CardTitle className="text-xl font-bold text-white">
                                                                         Book an Appointment
@@ -210,7 +197,7 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                                                         Select a time slot and provide details for your consultation
                                                                 </CardDescription>
                                                         </CardHeader>
-                                                        <CardContent className="space-y-6">
+                                                        <CardContent className="space-y-6  bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                                                 {totalSlots > 0 ? (
                                                                         <>
                                                                                 {/* Slot selection step */}
@@ -219,31 +206,31 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                                                                                 days={availableDays.map(day => ({
                                                                                                         ...day,
                                                                                                         displayDate: new Date(day.date).toLocaleDateString(undefined, {
-                                                                                                                weekday: "short",
-                                                                                                                month: "short",
-                                                                                                                day: "numeric",
-                                                                                                        }),
-                                                                                                        slots: day.slots.map(slot => ({
-                                                                                                                startTime: (slot as Slot).startTime ?? "",
-                                                                                                                // Copy other properties if needed
-                                                                                                        })),
+                                                                                                                weekday: 'long',
+                                                                                                                month: 'short',
+                                                                                                                day: 'numeric'
+                                                                                                        })
                                                                                                 }))}
                                                                                                 onSelectSlot={handleSlotSelect}
                                                                                         />
                                                                                 )}
 
                                                                                 {/* Appointment form step */}
-                                                                                {/* {selectedSlot && (
+                                                                                {selectedSlot && (
                                                                                         <AppointmentForm
                                                                                                 doctorId={doctor.id}
-                                                                                                slot={selectedSlot}
+                                                                                                patientId={patientId} // Assuming patientId is the same as doctor.id for demo purposes
+                                                                                                slot={{
+                                                                                                        ...selectedSlot,
+                                                                                                        formatted: `${selectedSlot.startTime} - ${selectedSlot.endTime}`
+                                                                                                }}
                                                                                                 onBack={() => setSelectedSlot(null)}
                                                                                                 onComplete={handleBookingComplete}
                                                                                         />
-                                                                                )} */}
+                                                                                )}
                                                                         </>
                                                                 ) : (
-                                                                        <div className="text-center py-6">
+                                                                        <div className="text-center py-6   bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                                                                 <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
                                                                                 <h3 className="text-xl font-medium text-white mb-2">
                                                                                         No available slots
@@ -261,5 +248,6 @@ export function DoctorProfile({ doctor, availableDays }: DoctorProfileProps) {
                                 )}
                         </div>
                 </div>
-        );
+        )
 }
+

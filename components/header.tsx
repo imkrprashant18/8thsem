@@ -19,7 +19,7 @@ const Header = async () => {
         }
         return (
                 <>
-                        <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md  supports-[backdrop-filter]:bg-background/60 z-50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+                        <header className="fixed top-0 w-full border-b  bg-background/80 backdrop-blur-md  supports-[backdrop-filter]:bg-background/60 z-50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
                                 <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
                                         <Link href="/" className="flex items-center gap-2 cursor-pointer">
                                                 <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">

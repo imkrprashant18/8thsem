@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Slot = {
         startTime: string;
-        // add other slot properties if needed
+        endTime: string;
+        // Add other slot properties if needed
 };
 
 type Day = {
@@ -48,7 +49,7 @@ export function SlotPicker({ days, onSelectSlot }: SlotPickerProps) {
                                 onValueChange={setActiveTab}
                                 className="w-full"
                         >
-                                <TabsList className="w-full justify-start overflow-x-auto">
+                                <TabsList className="w-full justify-start overflow-x-auto  bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900">
                                         {days.map((day) => (
                                                 <TabsTrigger
                                                         key={day.date}
@@ -65,7 +66,7 @@ export function SlotPicker({ days, onSelectSlot }: SlotPickerProps) {
                                                                 <div>({format(new Date(day.date), "EEE")})</div>
                                                         </div>
                                                         {day.slots.length > 0 && (
-                                                                <div className="ml-2 bg-emerald-900/30 text-emerald-400 text-xs px-2 py-1 rounded">
+                                                                <div className="ml-2 bg-amber-900/30 text-amber-400 text-xs px-2 py-1 rounded">
                                                                         {day.slots.length}
                                                                 </div>
                                                         )}
@@ -74,7 +75,7 @@ export function SlotPicker({ days, onSelectSlot }: SlotPickerProps) {
                                 </TabsList>
 
                                 {days.map((day) => (
-                                        <TabsContent key={day.date} value={day.date} className="pt-4">
+                                        <TabsContent key={day.date} value={day.date} className="pt-4  bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800">
                                                 {day.slots.length === 0 ? (
                                                         <div className="text-center py-8 text-muted-foreground">
                                                                 No available slots for this day.
@@ -88,16 +89,16 @@ export function SlotPicker({ days, onSelectSlot }: SlotPickerProps) {
                                                                         {day.slots.map((slot) => (
                                                                                 <Card
                                                                                         key={slot.startTime}
-                                                                                        className={`border-emerald-900/20 cursor-pointer transition-all ${selectedSlot?.startTime === slot.startTime
-                                                                                                ? "bg-emerald-900/30 border-emerald-600"
-                                                                                                : "hover:border-emerald-700/40"
+                                                                                        className={`border-amber-900/20 cursor-pointer transition-all  bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 ${selectedSlot?.startTime === slot.startTime
+                                                                                                ? "bg-amber-900/30 border-amber-600"
+                                                                                                : "hover:border-amber-700/40"
                                                                                                 }`}
                                                                                         onClick={() => handleSlotSelect(slot)}
                                                                                 >
                                                                                         <CardContent className="p-3 flex items-center">
                                                                                                 <Clock
                                                                                                         className={`h-4 w-4 mr-2 ${selectedSlot?.startTime === slot.startTime
-                                                                                                                ? "text-emerald-400"
+                                                                                                                ? "text-amber-400"
                                                                                                                 : "text-muted-foreground"
                                                                                                                 }`}
                                                                                                 />
@@ -124,7 +125,7 @@ export function SlotPicker({ days, onSelectSlot }: SlotPickerProps) {
                                 <Button
                                         onClick={confirmSelection}
                                         disabled={!selectedSlot}
-                                        className="bg-emerald-600 hover:bg-emerald-700"
+                                        className="bg-amber-600 hover:bg-amber-700"
                                 >
                                         Continue
                                         <ChevronRight className="ml-2 h-4 w-4" />
