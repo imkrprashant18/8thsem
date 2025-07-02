@@ -352,7 +352,7 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
  * This will be called when either doctor or patient is about to join the call
  */
 interface GenerateVideoTokenFormData {
-        get: (key: string) => string | undefined;
+        [key: string]: string | undefined;
 }
 
 interface GenerateVideoTokenResult {
@@ -381,7 +381,7 @@ export async function generateVideoToken(
                         throw new Error("User not found");
                 }
 
-                const appointmentId: string | undefined = formData.get("appointmentId");
+                const appointmentId: string | undefined = formData["appointmentId"];
 
                 if (!appointmentId) {
                         throw new Error("Appointment ID is required");

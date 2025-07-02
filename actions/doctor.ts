@@ -146,5 +146,319 @@ export async function getDoctorAvailability(): Promise<{ slots: Availability[] }
 /**
  * Get doctor's upcoming appointments
  */
-export async function getDoctorAppointments() { }
+export async function getDoctorAppointments() {
+        const { userId } = await auth();
+
+        if (!userId) {
+                throw new Error("Unauthorized");
+        }
+
+        try {
+                const doctor = await db.user.findUnique({
+                        where: {
+                                clerkUserId: userId,
+                                role: "DOCTOR",
+                        },
+                });
+
+                if (!doctor) {
+                        throw new Error("Doctor not found");
+                }
+
+                const appointments = await db.appointment.findMany({
+                        where: {
+                                doctorId: doctor.id,
+                                status: {
+                                        in: ["SCHEDULED"],
+                                },
+                        },
+                        include: {
+                                patient: true,
+                                doctor: true,
+                        },
+                        orderBy: {
+                                startTime: "asc",
+                        },
+                });
+
+                return { appointments };
+        } catch (error) {
+                if (error instanceof Error) {
+                        throw new Error("Failed to fetch appointments " + error.message);
+                } else {
+                        throw new Error("Failed to fetch appointments: Unknown error");
+                }
+        }
+}
+/**
+ * Cancel an appointment (can be done by both doctor and patient)
+ */
+export async function cancelAppointment(formData: FormData) {
+        const { userId } = await auth();
+
+        if (!userId) {
+                throw new Error("Unauthorized");
+        }
+
+        try {
+                const user = await db.user.findUnique({
+                        where: {
+                                clerkUserId: userId,
+                        },
+                });
+
+                if (!user) {
+                        throw new Error("User not found");
+                }
+
+                const appointmentIdRaw = formData.get("appointmentId");
+                const appointmentId = typeof appointmentIdRaw === "string" ? appointmentIdRaw : undefined;
+
+                if (!appointmentId) {
+                        throw new Error("Appointment ID is required");
+                }
+
+                // Find the appointment with both patient and doctor details
+                const appointment = await db.appointment.findUnique({
+                        where: {
+                                id: appointmentId,
+                        },
+                        include: {
+                                patient: true,
+                                doctor: true,
+                        },
+                });
+
+                if (!appointment) {
+                        throw new Error("Appointment not found");
+                }
+
+                // Verify the user is either the doctor or the patient for this appointment
+                if (appointment.doctorId !== user.id && appointment.patientId !== user.id) {
+                        throw new Error("You are not authorized to cancel this appointment");
+                }
+
+                // Perform cancellation in a transaction
+                await db.$transaction(async (tx) => {
+                        // Update the appointment status to CANCELLED
+                        await tx.appointment.update({
+                                where: {
+                                        id: appointmentId,
+                                },
+                                data: {
+                                        status: "CANCELLED",
+                                },
+                        });
+
+                        // Always refund credits to patient and deduct from doctor
+                        // Create credit transaction for patient (refund)
+                        await tx.creditTransaction.create({
+                                data: {
+                                        userId: appointment.patientId,
+                                        amount: 2,
+                                        type: "APPOINTMENT_DEDUCTION",
+                                },
+                        });
+
+                        // Create credit transaction for doctor (deduction)
+                        await tx.creditTransaction.create({
+                                data: {
+                                        userId: appointment.doctorId,
+                                        amount: -2,
+                                        type: "APPOINTMENT_DEDUCTION",
+                                },
+                        });
+
+                        // Update patient's credit balance (increment)
+                        await tx.user.update({
+                                where: {
+                                        id: appointment.patientId,
+                                },
+                                data: {
+                                        credits: {
+                                                increment: 2,
+                                        },
+                                },
+                        });
+
+                        // Update doctor's credit balance (decrement)
+                        await tx.user.update({
+                                where: {
+                                        id: appointment.doctorId,
+                                },
+                                data: {
+                                        credits: {
+                                                decrement: 2,
+                                        },
+                                },
+                        });
+                });
+
+                // Determine which path to revalidate based on user role
+                if (user.role === "DOCTOR") {
+                        revalidatePath("/doctor");
+                } else if (user.role === "PATIENT") {
+                        revalidatePath("/appointments");
+                }
+
+                return { success: true };
+        } catch (error) {
+                console.error("Failed to cancel appointment:", error);
+                if (error instanceof Error) {
+                        throw new Error("Failed to cancel appointment: " + error.message);
+                } else {
+                        throw new Error("Failed to cancel appointment: Unknown error");
+                }
+        }
+}
+
+/**
+ * Add notes to an appointment
+ */
+export async function addAppointmentNotes(formData: FormData) {
+        const { userId } = await auth();
+
+        if (!userId) {
+                throw new Error("Unauthorized");
+        }
+
+        try {
+                const doctor = await db.user.findUnique({
+                        where: {
+                                clerkUserId: userId,
+                                role: "DOCTOR",
+                        },
+                });
+
+                if (!doctor) {
+                        throw new Error("Doctor not found");
+                }
+
+                const appointmentId = formData.get("appointmentId");
+                const notesRaw = formData.get("notes");
+                const notes = typeof notesRaw === "string" ? notesRaw : undefined;
+
+                if (!appointmentId || !notes) {
+                        throw new Error("Appointment ID and notes are required");
+                }
+
+                // Verify the appointment belongs to this doctor
+                const appointment = await db.appointment.findUnique({
+                        where: {
+                                id: appointmentId as string,
+                                doctorId: doctor.id,
+                        },
+                });
+
+                if (!appointment) {
+                        throw new Error("Appointment not found");
+                }
+
+                // Update the appointment notes
+                const updatedAppointment = await db.appointment.update({
+                        where: {
+                                id: appointmentId as string,
+                        },
+                        data: {
+                                notes,
+                        },
+                });
+
+                revalidatePath("/doctor");
+                return { success: true, appointment: updatedAppointment };
+        } catch (error) {
+                console.error("Failed to add appointment notes:", error);
+                if (error instanceof Error) {
+                        throw new Error("Failed to update notes: " + error.message);
+                } else {
+                        throw new Error("Failed to update notes: Unknown error");
+                }
+        }
+}
+
+/**
+ * Mark an appointment as completed (only by doctor after end time)
+ */
+export async function markAppointmentCompleted(formData: FormData) {
+        const { userId } = await auth();
+
+        if (!userId) {
+                throw new Error("Unauthorized");
+        }
+
+        try {
+                const doctor = await db.user.findUnique({
+                        where: {
+                                clerkUserId: userId,
+                                role: "DOCTOR",
+                        },
+                });
+
+                if (!doctor) {
+                        throw new Error("Doctor not found");
+                }
+
+                const appointmentIdRaw = formData.get("appointmentId");
+                const appointmentId = typeof appointmentIdRaw === "string" ? appointmentIdRaw : undefined;
+
+                if (!appointmentId) {
+                        throw new Error("Appointment ID is required");
+                }
+
+                // Find the appointment
+                const appointment = await db.appointment.findUnique({
+                        where: {
+                                id: appointmentId as string,
+                                doctorId: doctor.id, // Ensure appointment belongs to this doctor
+                        },
+                        include: {
+                                patient: true,
+                        },
+                });
+
+                if (!appointment) {
+                        throw new Error("Appointment not found or not authorized");
+                }
+
+                // Check if appointment is currently scheduled
+                if (appointment.status !== "SCHEDULED") {
+                        throw new Error("Only scheduled appointments can be marked as completed");
+                }
+
+                // Check if current time is after the appointment end time
+                const now = new Date();
+                const appointmentEndTime = new Date(appointment.endTime);
+
+                if (now < appointmentEndTime) {
+                        throw new Error(
+                                "Cannot mark appointment as completed before the scheduled end time"
+                        );
+                }
+
+                // Update the appointment status to COMPLETED
+                const updatedAppointment = await db.appointment.update({
+                        where: {
+                                id: appointmentId,
+                        },
+                        data: {
+                                status: "COMPLETED",
+                        },
+                });
+
+                revalidatePath("/doctor");
+                return { success: true, appointment: updatedAppointment };
+        } catch (error) {
+                console.error("Failed to mark appointment as completed:", error);
+                if (error instanceof Error) {
+                        throw new Error(
+                                "Failed to mark appointment as completed: " + error.message
+                        );
+                } else {
+                        throw new Error(
+                                "Failed to mark appointment as completed: Unknown error"
+                        );
+                }
+        }
+}
+
 

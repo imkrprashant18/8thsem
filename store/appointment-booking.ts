@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { bookAppointment } from "@/actions/appointments"; // Adjust path accordingly
 import type { BookAppointmentFormData, BookAppointmentResult } from "@/actions/appointments";
 
 interface AppointmentState {
@@ -21,7 +20,12 @@ export const useAppointmentStore = create<AppointmentState>((set) => ({
                 set({ isLoading: true, error: null, success: false, appointment: null });
 
                 try {
-                        const result = await bookAppointment(formData);
+                        const response = await fetch("/api/book-appointment", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(formData),
+                        });
+                        const result = await response.json();
                         if (!result.success) {
                                 throw new Error("Booking failed");
                         }

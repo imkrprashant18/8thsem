@@ -44,15 +44,6 @@ const Header = async () => {
                                                                                         <ShieldCheck className="h-4 w-4" />
                                                                                 </Button>
                                                                         </Link>
-                                                                        <Link href="/doctors">
-                                                                                <Button
-                                                                                        variant="outline"
-                                                                                        className="hidden md:inline-flex items-center gap-2"
-                                                                                >
-                                                                                        <ShieldCheck className="h-4 w-4" />
-                                                                                        Doctors
-                                                                                </Button>
-                                                                        </Link>
                                                                 </>
                                                         )}
 
@@ -74,18 +65,22 @@ const Header = async () => {
 
                                                         {/* Patient Links */}
                                                         {user?.role === "PATIENT" && (
-                                                                <Link href="/appointments">
-                                                                        <Button
-                                                                                variant="outline"
-                                                                                className="hidden md:inline-flex items-center gap-2"
-                                                                        >
-                                                                                <Calendar className="h-4 w-4" />
-                                                                                My Appointments
-                                                                        </Button>
-                                                                        <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
-                                                                                <Calendar className="h-4 w-4" />
-                                                                        </Button>
-                                                                </Link>
+
+                                                                <>
+                                                                        <Link href="/appointments">
+                                                                                <Button
+                                                                                        variant="outline"
+                                                                                        className="hidden md:inline-flex items-center gap-2"
+                                                                                >
+                                                                                        <Calendar className="h-4 w-4" />
+                                                                                        My Appointments
+                                                                                </Button>
+                                                                                <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
+                                                                                        <Calendar className="h-4 w-4" />
+                                                                                </Button>
+                                                                        </Link>
+
+                                                                </>
                                                         )}
 
                                                         {/* Unassigned Role */}
@@ -129,16 +124,21 @@ const Header = async () => {
                                                                                 </span>
                                                                         </Badge>
                                                                 </Link>
-                                                                <Link href="/doctors">
-                                                                        <Button
-                                                                                variant="outline"
-                                                                                className="hidden md:inline-flex items-center gap-2"
-                                                                        >
-                                                                                <ShieldCheck className="h-4 w-4" />
-                                                                                Doctors
-                                                                        </Button>
-                                                                </Link>
+
                                                         </>
+                                                )}
+
+
+                                                {(user?.role === "PATIENT" || user?.role === "ADMIN") && (
+                                                        <Link href="/doctors">
+                                                                <Button
+                                                                        variant="outline"
+                                                                        className="hidden md:inline-flex items-center gap-2"
+                                                                >
+                                                                        <ShieldCheck className="h-4 w-4" />
+                                                                        Doctors
+                                                                </Button>
+                                                        </Link>
                                                 )}
                                                 <SignedOut>
                                                         <SignInButton >

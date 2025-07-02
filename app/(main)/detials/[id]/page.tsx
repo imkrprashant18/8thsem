@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/check-user";
 import { useEffect } from "react";
 import { useDoctorByIdStore } from "@/store/get-doctor-by-id";
 import { useDoctorAvailabilityStore } from "@/store/get-time-slot";
+import { PageHeader } from "@/components/page-headers";
 
 
 
@@ -40,8 +41,12 @@ export default function DoctorProfilePage() {
                 return (
                         <>
                                 <div className="container mx-auto">
-                                        */
+                                        <PageHeader
+                                                title={doctor?.name ?? ""}
+                                                backLink={`/doctors/${doctor?.specialty ?? ""}`}
+                                                backLabel="Back to Doctors"
 
+                                        />
 
                                         {doctor && (
                                                 <DoctorProfile
