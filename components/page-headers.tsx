@@ -42,7 +42,7 @@ export function PageHeader({
                                                 {React.cloneElement(icon)}
                                         </div>
                                 )}
-                                <h1 className="text-4xl md:text-5xl gradient-title">{title}</h1>
+                                <h1 className="text-4xl md:text-5xl text-white">{title}</h1>
                         </div>
                 </div>
         );

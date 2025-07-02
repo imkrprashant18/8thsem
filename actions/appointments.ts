@@ -211,7 +211,7 @@ export async function getAvailableTimeSlots(doctorId: string) {
  * Book a new appointment with a doctor
  */
 
-interface BookAppointmentFormData {
+export interface BookAppointmentFormData {
         patientId: string;
         doctorId: string;
         startTime: string | Date;
@@ -219,7 +219,7 @@ interface BookAppointmentFormData {
         description?: string;
 }
 
-interface BookAppointmentResult {
+export interface BookAppointmentResult {
         success: boolean;
         appointment: Appointment; // Replace 'any' with your Appointment type if available
 }

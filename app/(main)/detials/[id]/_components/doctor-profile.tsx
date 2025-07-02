@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { SlotPicker } from "./slot-picker";
-import { AppointmentForm } from "./appointment-form";
+
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SlotPicker } from './slot-picker';
+import { AppointmentForm } from './appointment-form';
+
 
 
 type Slot = {

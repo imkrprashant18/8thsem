@@ -14,13 +14,13 @@ interface GetDoctorsBySpecialtyResult {
  */
 export async function getDoctorsBySpecialty(specialty: string): Promise<GetDoctorsBySpecialtyResult> {
         try {
-                const normalizedSpecialty = decodeURIComponent(specialty);
+
 
                 const doctors = await db.user.findMany({
                         where: {
                                 role: "DOCTOR",
                                 verificationStatus: "VERIFIED",
-                                specialty: normalizedSpecialty,
+                                specialty: specialty,
                         },
                         orderBy: {
                                 name: "asc",

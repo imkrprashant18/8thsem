@@ -1,20 +1,33 @@
 
-
-import { getDoctorsBySpecialty } from '@/actions/doctor-list'
+"use client"
 import { PageHeader } from '@/components/page-headers'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { DoctorCard } from '../components/doctor-card'
-interface PageProps {
-        params: { specialty: string }
-}
+import { useParams } from 'next/navigation'
+import { useDoctorStore } from '@/store/doctor-list'
 
-const Page = async ({ params }: PageProps) => {
-        const { specialty } = params
-
+const Page = () => {
+        const params = useParams()
+        const specialty = params.specialty as string | undefined
+        const { doctors, error, getDoctorsBySpecialty } = useDoctorStore()
+        useEffect(() => {
+                if (specialty) {
+                        getDoctorsBySpecialty(specialty)
+                }
+        }, [getDoctorsBySpecialty, specialty])
+        console.log(doctors, "doctors in specialty page")
         if (!specialty) {
-
+                return (
+                        <div className="text-center py-12">
+                                <h3 className="text-xl font-medium text-white mb-2">
+                                        No specialty selected
+                                </h3>
+                                <p className="text-muted-foreground">
+                                        Please select a specialty to view available doctors.
+                                </p>
+                        </div>
+                );
         }
-        const { doctors, error } = await getDoctorsBySpecialty(specialty)
         if (error) {
                 console.error("Error fetching doctors:", error);
         }

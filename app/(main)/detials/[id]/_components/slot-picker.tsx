@@ -6,13 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 type Slot = {
         startTime: string;
         endTime: string;
         // Add other slot properties if needed
 };
-
 type Day = {
         date: string;
         displayDate: string;

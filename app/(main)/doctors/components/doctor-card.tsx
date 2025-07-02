@@ -49,7 +49,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                                                         asChild
                                                         className="w-full bg-amber-500 hover:bg-amber-600 mt-2"
                                                 >
-                                                        <Link href={`/doctors/${doctor.specialty}/${doctor.id}`}>
+                                                        <Link href={`/detials/${doctor.id}`}>
                                                                 <Calendar className="h-4 w-4 mr-2" />
                                                                 View Profile & Book
                                                         </Link>

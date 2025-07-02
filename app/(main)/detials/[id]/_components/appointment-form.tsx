@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { Loader2, Clock, ArrowLeft, Calendar, CreditCard } from "lucide-react";
-import { bookAppointment } from "@/actions/appointments";
 import { toast } from "sonner";
-import useFetch from "@/hooks/use-fetch";
+import { useAppointmentStore } from "@/store/appointment-booking";
+
+
 
 type AppointmentFormProps = {
         doctorId: string;
@@ -24,9 +25,10 @@ type AppointmentFormProps = {
 
 export function AppointmentForm({ doctorId, slot, onBack, onComplete, patientId }: AppointmentFormProps) {
         const [description, setDescription] = useState("");
+        const { book: bookAppointment, isLoading: loading, error } = useAppointmentStore()
 
         // Use the useFetch hook to handle loading, data, and error states
-        const { loading, data, fn: submitBooking } = useFetch(bookAppointment);
+
 
         // Handle form submission
         const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,18 +44,15 @@ export function AppointmentForm({ doctorId, slot, onBack, onComplete, patientId 
                 };
 
                 // Submit booking using the function from useFetch
-                await submitBooking(formData);
+                const res = await bookAppointment(formData);
+                if (res.success) {
+                        toast.success("Appointment booked successfully!");
+                        onComplete();
+                } else {
+                        toast.error(error || "Failed to book appointment. Please try again.");
+                }
         };
 
-        // Handle response after booking attempt
-        useEffect(() => {
-                if (data) {
-                        if (data.success) {
-                                toast.success("Appointment booked successfully!");
-                                onComplete();
-                        }
-                }
-        }, [data, onComplete]);
 
         return (
                 <form onSubmit={handleSubmit} className="space-y-6">

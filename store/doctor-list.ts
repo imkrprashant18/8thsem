@@ -1,44 +1,29 @@
-import { create } from "zustand";
-import { getDoctorsBySpecialty } from "@/actions/doctor-list"; // update path as needed
-
-interface Doctor {
-        id: string;
-        clerkUserId: string;
-        email: string;
-        name?: string;
-        imageUrl?: string;
-        role: "UNASSIGNED" | "PATIENT" | "DOCTOR" | "ADMIN";
-        createdAt: string;
-        updatedAt: string;
-        credits: number;
-        specialty?: string;
-        experience?: number;
-        credentialUrl?: string;
-        description?: string;
-        verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
-}
-
-interface AdminStore {
-        doctorsBySpecialty: Doctor[] | null;
+import { create } from 'zustand';
+import type { User } from '@prisma/client';
+import { getDoctorsBySpecialty } from '@/actions/doctor-list';
+interface DoctorListState {
         loading: boolean;
         error: string | null;
-        fetchDoctorsBySpecialty: (specialty: string) => Promise<void>;
+        doctors: User[];
+        getDoctorsBySpecialty: (specialty: string) => Promise<void>;
 }
 
-export const useDoctorStore = create<AdminStore>((set) => ({
-        doctorsBySpecialty: null,
+export const useDoctorStore = create<DoctorListState>((set) => ({
+        doctors: [],
         loading: false,
         error: null,
-        fetchDoctorsBySpecialty: async (specialty: string) => {
+        getDoctorsBySpecialty: async (specialty: string) => {
                 set({ loading: true, error: null });
+
                 try {
                         const res = await getDoctorsBySpecialty(specialty);
                         if (res.error) {
-                                set({ error: res.error, doctorsBySpecialty: null, loading: false });
+                                set({ error: res.error, loading: false });
                         } else {
-                                set({ doctorsBySpecialty: res.doctors || [], loading: false });
+                                set({ doctors: res.doctors || [], loading: false });
                         }
-                } catch {
+                } catch (error) {
+                        console.error("Fetch failed:", error);
                         set({ error: "Something went wrong", loading: false });
                 }
         },
