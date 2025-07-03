@@ -5,12 +5,16 @@ import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, DollarSign } from 'lucide-react';
 import { AvailabilitySettings } from './_components/availability-settings';
+import DoctorAppointmentsList from './_components/appointment-list';
+import { DoctorEarnings } from './_components/doctor-earnings';
+import { getDoctorEarnings, getDoctorPayouts } from '@/actions/payout';
 
 export default async function DoctorDashboardPage() {
         const user = await getCurrentUser()
-        const [availabilityData] =
+        const [earningsData, payoutsData, availabilityData] =
                 await Promise.all([
-
+                        getDoctorEarnings(),
+                        getDoctorPayouts(),
                         getDoctorAvailability(),
                 ]);
 
@@ -53,7 +57,7 @@ export default async function DoctorDashboardPage() {
                         </TabsList>
                         <div className="md:col-span-3">
                                 <TabsContent value="appointments" className="border-none p-0">
-                                        sajkdjasdk
+                                        <DoctorAppointmentsList />
                                 </TabsContent>
                                 <TabsContent value="availability" className="border-none p-0">
                                         <AvailabilitySettings
@@ -67,7 +71,10 @@ export default async function DoctorDashboardPage() {
                                         />
                                 </TabsContent>
                                 <TabsContent value="earnings" className="border-none p-0">
-                                        sadfjksadf
+                                        <DoctorEarnings
+                                                earnings={earningsData.earnings || {}}
+                                                payouts={payoutsData.payouts || []}
+                                        />
                                 </TabsContent>
                         </div>
                 </Tabs>
