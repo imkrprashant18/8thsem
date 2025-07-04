@@ -166,41 +166,6 @@ export async function updateDoctorActiveStatus(formData: SetUserRoleFormData) {
 }
 
 /**
- * Gets all pending payouts that need admin approval
- */
-export async function getPendingPayouts() {
-        const isAdmin = await verifyAdmin();
-        if (!isAdmin) throw new Error("Unauthorized");
-
-        try {
-                const pendingPayouts = await db.payout.findMany({
-                        where: {
-                                status: "PROCESSING",
-                        },
-                        include: {
-                                doctor: {
-                                        select: {
-                                                id: true,
-                                                name: true,
-                                                email: true,
-                                                specialty: true,
-                                                credits: true,
-                                        },
-                                },
-                        },
-                        orderBy: {
-                                createdAt: "desc",
-                        },
-                });
-
-                return { payouts: pendingPayouts };
-        } catch (error) {
-                console.error("Failed to fetch pending payouts:", error);
-                throw new Error("Failed to fetch pending payouts");
-        }
-}
-
-/**
  * Approves a payout request and deducts credits from doctor's account
  */
 export async function approvePayout(formData: SetUserRoleFormData) {
@@ -290,3 +255,41 @@ export async function approvePayout(formData: SetUserRoleFormData) {
                 }
         }
 }
+
+
+
+
+/**
+ * Gets all pending payouts that need admin approval
+ */
+export async function getPendingPayouts() {
+        const isAdmin = await verifyAdmin();
+        if (!isAdmin) throw new Error("Unauthorized");
+        try {
+                const pendingPayouts = await db.payout.findMany({
+                        where: {
+                                status: "PROCESSING",
+                        },
+                        include: {
+                                doctor: {
+                                        select: {
+                                                id: true,
+                                                name: true,
+                                                email: true,
+                                                specialty: true,
+                                                credits: true,
+                                        },
+                                },
+                        },
+                        orderBy: {
+                                createdAt: "desc",
+                        },
+                });
+
+                return { payouts: pendingPayouts };
+        } catch (error) {
+                console.error("Failed to fetch pending payouts:", error);
+                throw new Error("Failed to fetch pending payouts");
+        }
+}
+

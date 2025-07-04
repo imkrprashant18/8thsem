@@ -21,40 +21,33 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { updateDoctorStatus } from "@/actions/admin";
+import useFetch from "@/hooks/use-fetch";
 import { useEffect } from "react";
 import { BarLoader } from "react-spinners";
-import { useAdminStore } from "@/store/admin-store";
-import { toast } from "sonner";
+import type { User as Doctor } from "@prisma/client";
 
-type Doctor = {
-        id: string;
-        name: string;
-        email: string;
-        specialty: string;
-        experience: number;
-        credentialUrl: string;
-        description: string;
-        createdAt: string | Date;
-};
 
-interface PendingDoctorsProps {
-        doctors: Doctor[];
-}
+type Status = "VERIFIED" | "REJECTED";
 
-export function PendingDoctors({ doctors }: PendingDoctorsProps) {
+export function PendingDoctors({ doctors }
+        : {
+                doctors: Doctor[];
+        } = {
+                doctors: [],
+        }
+) {
         const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-        const [targetDoctor, setTargetDoctor] = useState<Doctor | null>(null);
-        const [actionType, setActionType] = useState<"SUSPEND" | "REINSTATE" | null>(null);
 
         // Custom hook for approve/reject server action
-        const { updateDoctorStatus: submitStatusUpdate, loading, error, getPendingDoctors } = useAdminStore()
+        const {
+                loading,
+                data,
+                fn: submitStatusUpdate,
+        } = useFetch(updateDoctorStatus);
 
         // Open doctor details dialog
-        interface HandleViewDetails {
-                (doctor: Doctor): void;
-        }
-
-        const handleViewDetails: HandleViewDetails = (doctor) => {
+        const handleViewDetails = (doctor: Doctor) => {
                 setSelectedDoctor(doctor);
         };
 
@@ -64,32 +57,21 @@ export function PendingDoctors({ doctors }: PendingDoctorsProps) {
         };
 
         // Handle approve or reject doctor
-        interface HandleUpdateStatus {
-                (doctorId: string, status: "VERIFIED" | "REJECTED"): Promise<void>;
-        }
-
-        const handleUpdateStatus: HandleUpdateStatus = async (doctorId, status) => {
+        const handleUpdateStatus = async (doctorId: string, status: Status) => {
                 if (loading) return;
 
-                const formData = {
+                const data = {
                         doctorId,
-                        status,
+                        status
                 };
-
-                await submitStatusUpdate(formData);
-                setSelectedDoctor(null);
-                await getPendingDoctors(); // Refresh the list after status change
+                await submitStatusUpdate(data);
         };
 
         useEffect(() => {
-                if (!loading && !error && targetDoctor && actionType) {
-                        const actionVerb = actionType === "SUSPEND" ? "Suspended" : "Reinstated";
-                        toast.success(`${actionVerb} ${targetDoctor.name} successfully!`);
-                        setTargetDoctor(null);
-                        setActionType(null);
+                if (data && data?.success) {
+                        handleCloseDialog();
                 }
-
-        }, [loading, error, targetDoctor, actionType]);
+        }, [data]);
 
         return (
                 <div>
@@ -232,7 +214,7 @@ export function PendingDoctors({ doctors }: PendingDoctorsProps) {
                                                                                 </h4>
                                                                                 <div className="flex items-center">
                                                                                         <a
-                                                                                                href={selectedDoctor.credentialUrl}
+                                                                                                href={selectedDoctor.credentialUrl ?? ""}
                                                                                                 target="_blank"
                                                                                                 rel="noopener noreferrer"
                                                                                                 className="text-amber-400 hover:text-amber-300 flex items-center"
@@ -261,7 +243,7 @@ export function PendingDoctors({ doctors }: PendingDoctorsProps) {
                                                         </div>
                                                 </div>
 
-                                                {loading && <BarLoader width={"100%"} color="#FFBF00" />}
+                                                {loading && <BarLoader width={"100%"} color="yellow" />}
 
                                                 <DialogFooter className="flex sm:justify-between">
                                                         <Button

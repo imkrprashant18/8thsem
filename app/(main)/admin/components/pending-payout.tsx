@@ -33,51 +33,38 @@ import { approvePayout } from "@/actions/admin";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
 import { BarLoader } from "react-spinners";
+import type { Payout } from "@prisma/client"
 
-export interface Payout {
-        id: string;
-        doctorId: string;
+type PayoutWithDoctor = Payout & {
         doctor: {
                 id: string;
-                name: string;
+                name: string | null;
                 email: string;
-                specialty: string;
+                specialty: string | null;
                 credits: number;
         };
-        amount: number;        // Total payout amount in USD
-        credits: number;       // Number of credits being paid out
-        platformFee: number;   // Platform fee deducted (2 USD per credit)
-        netAmount: number;     // Amount doctor receives (8 USD per credit)
-        paypalEmail: string;   // Doctor's PayPal email for payout
-        status: "PROCESSING" | "PROCESSED" | "FAILED"; // Match your PayoutStatus enum
-        createdAt: Date;
-        updatedAt: Date;
-        processedAt?: Date | null;
-        processedBy?: string | null;
-}
+};
 
-interface PendingPayoutsProps {
-        payouts: Payout[];
-}
-
-export function PendingPayouts({ payouts }: PendingPayoutsProps) {
-        const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
+export function PendingPayouts({ payouts }
+        : {
+                payouts: PayoutWithDoctor[];
+        } = {
+                payouts: [],
+        }
+) {
+        const [selectedPayout, setSelectedPayout] = useState<PayoutWithDoctor | null>(null);
         const [showApproveDialog, setShowApproveDialog] = useState(false);
 
         // Custom hook for approve payout server action
         const { loading, data, fn: submitApproval } = useFetch(approvePayout);
 
         // Handle view details
-        interface HandleViewDetails {
-                (payout: Payout): void;
-        }
-
-        const handleViewDetails: HandleViewDetails = (payout) => {
+        const handleViewDetails = (payout: PayoutWithDoctor) => {
                 setSelectedPayout(payout);
         };
 
         // Handle approve payout
-        const handleApprovePayout = (payout: Payout) => {
+        const handleApprovePayout = (payout: PayoutWithDoctor) => {
                 setSelectedPayout(payout);
                 setShowApproveDialog(true);
         };
@@ -86,9 +73,11 @@ export function PendingPayouts({ payouts }: PendingPayoutsProps) {
         const confirmApproval = async () => {
                 if (!selectedPayout || loading) return;
 
-                const formData = { payoutId: selectedPayout.id };
+                const data = {
+                        payoutId: selectedPayout.id
+                };
 
-                await submitApproval(formData);
+                await submitApproval(data);
         };
 
         useEffect(() => {
@@ -135,10 +124,10 @@ export function PendingPayouts({ payouts }: PendingPayoutsProps) {
                                                                                                 </div>
                                                                                                 <div className="flex-1">
                                                                                                         <h3 className="font-medium text-white">
-                                                                                                                Dr. {payout.doctor.name}
+                                                                                                                Dr. {payout.doctor.name || 'Unknown Doctor'}
                                                                                                         </h3>
                                                                                                         <p className="text-sm text-muted-foreground">
-                                                                                                                {payout.doctor.specialty}
+                                                                                                                {payout.doctor.specialty || 'No specialty'}
                                                                                                         </p>
                                                                                                         <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                                                                                                                 <div className="flex items-center">
@@ -390,7 +379,7 @@ export function PendingPayouts({ payouts }: PendingPayoutsProps) {
                                                         </div>
                                                 </div>
 
-                                                {loading && <BarLoader width={"100%"} color="#36d7b7" />}
+                                                {loading && <BarLoader width={"100%"} color="yellow" />}
 
                                                 <DialogFooter>
                                                         <Button

@@ -13,9 +13,7 @@ export default async function PatientAppointmentsPage() {
         if (!user || user.role !== "PATIENT") {
                 redirect("/onboarding");
         }
-
         const { appointments = [], error } = await getPatientAppointments();
-        console.log(appointments)
 
         return (
                 <div className="container mx-auto px-4 py-8 ">

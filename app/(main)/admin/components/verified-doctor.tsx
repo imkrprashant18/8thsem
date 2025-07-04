@@ -12,68 +12,56 @@ import { Button } from "@/components/ui/button";
 import { Check, Ban, Loader2, User, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { updateDoctorActiveStatus } from "@/actions/admin";
+import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
-import { useAdminStore } from "@/store/admin-store";
-
-export interface Doctor {
-        id: string;
-        name: string;
-        email: string;
-        specialty: string;
-        experience: number;
-        credentialUrl: string;
-        description: string;
-        createdAt: string | Date;
-        verificationStatus?: string; // if used in verified/pending logic
-}
-
-interface VerifiedDoctorsProps {
-        doctors: Doctor[];
-}
-
-export function VerifiedDoctors({ doctors }: VerifiedDoctorsProps) {
+import { User as Doctor } from "@prisma/client";
+type Action = "SUSPEND" | "REINSTATE";
+export function VerifiedDoctors({ doctors }: { doctors: Doctor[] }) {
         const [searchTerm, setSearchTerm] = useState("");
         const [targetDoctor, setTargetDoctor] = useState<Doctor | null>(null);
         const [actionType, setActionType] = useState<"SUSPEND" | "REINSTATE" | null>(null);
 
-        const { updateDoctorActiveStatus: submitStatusUpdate, loading, error, } = useAdminStore()
+        const {
+                loading,
+                data,
+                fn: submitStatusUpdate,
+        } = useFetch(updateDoctorActiveStatus);
 
         const filteredDoctors = doctors.filter((doctor) => {
                 const query = searchTerm.toLowerCase();
                 return (
-                        doctor.name.toLowerCase().includes(query) ||
-                        doctor.specialty.toLowerCase().includes(query) ||
-                        doctor.email.toLowerCase().includes(query)
+                        doctor.name?.toLowerCase().includes(query) ||
+                        doctor.email.toLowerCase().includes(query) ||
+                        doctor.specialty?.toLowerCase().includes(query) ||
+                        doctor.experience?.toString().includes(query)
                 );
         });
 
-        const handleStatusChange = async (doctor: Doctor, suspend: boolean) => {
+        const handleStatusChange = async (doctor: Doctor, action: Action) => {
                 const confirmed = window.confirm(
-                        `Are you sure you want to ${suspend ? "suspend" : "reinstate"} ${doctor.name
+                        `Are you sure you want to ${action === "SUSPEND" ? "suspend" : "reinstate"} ${doctor.name || 'this doctor'
                         }?`
                 );
                 if (!confirmed || loading) return;
 
-                const formData = {
+                const data = {
                         doctorId: doctor.id,
-                        suspend: suspend,
+                        suspend: action === "SUSPEND" ? "true" : "false"
                 };
-
                 setTargetDoctor(doctor);
-                setActionType(suspend ? "SUSPEND" : "REINSTATE");
-
-                await submitStatusUpdate(formData);
+                setActionType(action);
+                await submitStatusUpdate(data);
         };
 
         useEffect(() => {
-                if (!loading && !error && targetDoctor && actionType) {
+                if (data?.success && targetDoctor && actionType) {
                         const actionVerb = actionType === "SUSPEND" ? "Suspended" : "Reinstated";
-                        toast.success(`${actionVerb} ${targetDoctor.name} successfully!`);
+                        toast.success(`${actionVerb} ${targetDoctor.name || 'doctor'} successfully!`);
                         setTargetDoctor(null);
                         setActionType(null);
                 }
-
-        }, [loading, error, targetDoctor, actionType]);
+        }, [data, targetDoctor, actionType]);
 
         return (
                 <div>
@@ -124,10 +112,10 @@ export function VerifiedDoctors({ doctors }: VerifiedDoctorsProps) {
                                                                                                         </div>
                                                                                                         <div>
                                                                                                                 <h3 className="font-medium text-white">
-                                                                                                                        {doctor.name}
+                                                                                                                        {doctor.name || 'Unknown Doctor'}
                                                                                                                 </h3>
                                                                                                                 <p className="text-sm text-muted-foreground">
-                                                                                                                        {doctor.specialty} • {doctor.experience} years
+                                                                                                                        {doctor.specialty || 'No specialty'} • {doctor.experience || 0} years
                                                                                                                         experience
                                                                                                                 </p>
                                                                                                                 <p className="text-sm text-muted-foreground mt-1">
@@ -148,7 +136,7 @@ export function VerifiedDoctors({ doctors }: VerifiedDoctorsProps) {
                                                                                                                                 variant="outline"
                                                                                                                                 size="sm"
                                                                                                                                 onClick={() =>
-                                                                                                                                        handleStatusChange(doctor, false)
+                                                                                                                                        handleStatusChange(doctor, "REINSTATE")
                                                                                                                                 }
                                                                                                                                 disabled={loading}
                                                                                                                                 className="border-amber-900/30 hover:bg-muted/80"
@@ -172,7 +160,7 @@ export function VerifiedDoctors({ doctors }: VerifiedDoctorsProps) {
                                                                                                                         <Button
                                                                                                                                 variant="outline"
                                                                                                                                 size="sm"
-                                                                                                                                onClick={() => handleStatusChange(doctor, true)}
+                                                                                                                                onClick={() => handleStatusChange(doctor, "SUSPEND")}
                                                                                                                                 disabled={loading}
                                                                                                                                 className="border-red-900/30 hover:bg-red-900/10 text-red-400"
                                                                                                                         >

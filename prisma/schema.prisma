@@ -50,23 +50,22 @@ enum PayoutStatus {
 // MODELS
 
 model User {
-        id                 String              @id @default(uuid())
-        clerkUserId        String              @unique // Clerk's user ID
-        email              String              @unique
-        name               String?
-        imageUrl           String?
-        role               UserRole            @default(UNASSIGNED)
-        createdAt          DateTime            @default(now())
-        updatedAt          DateTime            @updatedAt
+        id                  String              @id @default(uuid())
+        clerkUserId         String              @unique // Clerk's user ID
+        email               String              @unique
+        name                String?
+        imageUrl            String?
+        role                UserRole            @default(UNASSIGNED)
+        createdAt           DateTime            @default(now())
+        updatedAt           DateTime            @updatedAt
         // Patient-specific
-        credits            Int                 @default(2)
+        credits             Int                 @default(2)
         // Doctor-specific
-        specialty          String?
-        experience         Int? // Years of experience
-        credentialUrl      String? // Document URL
-        description        String?             @db.Text
-        verificationStatus VerificationStatus? @default(PENDING)
-
+        specialty           String?
+        experience          Int? // Years of experience
+        credentialUrl       String? // Document URL
+        description         String?             @db.Text
+        verificationStatus  VerificationStatus? @default(PENDING)
         // Relations
         patientAppointments Appointment[]       @relation("PatientAppointments")
         doctorAppointments  Appointment[]       @relation("DoctorAppointments")
