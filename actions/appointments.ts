@@ -1,16 +1,11 @@
-
 "use server"
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { addDays, addMinutes, format, isBefore, endOfDay } from "date-fns";
-import { Auth } from "@vonage/auth";
-import { Vonage } from "@vonage/server-sdk";
-import { Video, MediaMode } from "@vonage/video"
 import { revalidatePath } from "next/cache";
 import { deductCreditsForAppointment } from "@/actions/credit";
 import type { Appointment } from "@prisma/client"
-
 
 type Slot = {
         startTime: string;
@@ -19,34 +14,6 @@ type Slot = {
         day: string
 };
 
-
-// Initialize Vonage Video API client
-const credentials = new Auth({
-        applicationId: process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID,
-        privateKey: process.env.VONAGE_PRIVATE_KEY,
-});
-const options = {};
-const vonage = new Vonage(credentials, options);
-const video = new Video(credentials, options); // Initialize Video instance
-/**
- * Generate a Vonage Video API session
- */
-
-async function createVideoSession(): Promise<string> {
-        try {
-                // Use the Vonage SDK's video.createSession method with correct parameters
-                const session = await video.createSession({
-                        mediaMode: MediaMode.ROUTED
-                });
-                return session.sessionId;
-        } catch (error) {
-                if (error instanceof Error) {
-                        throw new Error("Failed to create video session: " + error.message);
-                } else {
-                        throw new Error("Failed to create video session: " + String(error));
-                }
-        }
-}
 /**
  * Get doctor by ID
  */
@@ -70,9 +37,6 @@ export async function getDoctorById(doctorId: string) {
                 throw new Error("Failed to fetch doctor details");
         }
 }
-
-
-
 
 /**
  * Get available time slots for booking for the next 4 days
@@ -102,6 +66,7 @@ export async function getAvailableTimeSlots(doctorId: string) {
                 if (!availability) {
                         throw new Error("No availability set by doctor");
                 }
+
                 // Get the next 4 days
                 const now = new Date();
                 const days = [now, addDays(now, 1), addDays(now, 2), addDays(now, 3)];
@@ -199,18 +164,12 @@ export async function getAvailableTimeSlots(doctorId: string) {
                 } else {
                         throw new Error("Failed to fetch available time slots: " + String(error));
                 }
-
         }
 }
-
-
-
-
 
 /**
  * Book a new appointment with a doctor
  */
-
 export interface BookAppointmentFormData {
         patientId: string;
         doctorId: string;
@@ -221,7 +180,7 @@ export interface BookAppointmentFormData {
 
 export interface BookAppointmentResult {
         success: boolean;
-        appointment: Appointment; // Replace 'any' with your Appointment type if available
+        appointment: Appointment;
 }
 
 export async function bookAppointment(formData: BookAppointmentFormData): Promise<BookAppointmentResult> {
@@ -230,6 +189,7 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
         if (!userId) {
                 throw new Error("Unauthorized");
         }
+
         try {
                 const patient = await db.user.findUnique({
                         where: {
@@ -245,10 +205,12 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                 const startTime: Date = new Date(formData.startTime);
                 const endTime: Date = new Date(formData.endTime);
                 const patientDescription: string = formData.description || "";
+
                 // Validate input
                 if (!doctorId || !startTime || !endTime) {
                         throw new Error("Doctor, start time, and end time are required");
                 }
+
                 // Check if the doctor exists and is verified
                 const doctor = await db.user.findUnique({
                         where: {
@@ -266,6 +228,7 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                 if (patient.credits < 2) {
                         throw new Error("Insufficient credits to book an appointment");
                 }
+
                 // Check if the requested time slot is available
                 const overlappingAppointment = await db.appointment.findFirst({
                         where: {
@@ -300,14 +263,13 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                                                 },
                                         },
                                 ],
-
                         },
                 });
+
                 if (overlappingAppointment) {
                         throw new Error("This time slot is already booked");
                 }
-                // Create a new Vonage Video API session
-                const sessionId: string = await createVideoSession();
+
                 // Deduct credits from patient and add to doctor
                 const { success, error }: { success: boolean; error?: string } = await deductCreditsForAppointment(
                         patient.id,
@@ -318,7 +280,7 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                         throw new Error(error || "Failed to deduct credits");
                 }
 
-                // Create the appointment with the video session ID
+                // Create the appointment
                 const appointment = await db.appointment.create({
                         data: {
                                 patientId: patient.id,
@@ -327,7 +289,6 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                                 endTime,
                                 patientDescription,
                                 status: "SCHEDULED",
-                                videoSessionId: sessionId, // Store the Vonage session ID
                         },
                 });
 
@@ -340,127 +301,5 @@ export async function bookAppointment(formData: BookAppointmentFormData): Promis
                 } else {
                         throw new Error("Failed to book appointment: Unknown error");
                 }
-
-        }
-}
-
-
-
-
-/**
- * Generate a token for a video session
- * This will be called when either doctor or patient is about to join the call
- */
-interface GenerateVideoTokenFormData {
-        [key: string]: string | undefined;
-}
-
-interface GenerateVideoTokenResult {
-        success: boolean;
-        videoSessionId: string;
-        token: string;
-}
-
-export async function generateVideoToken(
-        formData: GenerateVideoTokenFormData
-): Promise<GenerateVideoTokenResult> {
-        const { userId } = await auth();
-
-        if (!userId) {
-                throw new Error("Unauthorized");
-        }
-
-        try {
-                const user = await db.user.findUnique({
-                        where: {
-                                clerkUserId: userId,
-                        },
-                });
-
-                if (!user) {
-                        throw new Error("User not found");
-                }
-
-                const appointmentId: string | undefined = formData["appointmentId"];
-
-                if (!appointmentId) {
-                        throw new Error("Appointment ID is required");
-                }
-
-                // Find the appointment and verify the user is part of it
-                const appointment = await db.appointment.findUnique({
-                        where: {
-                                id: appointmentId,
-                        },
-                });
-
-                if (!appointment) {
-                        throw new Error("Appointment not found");
-                }
-
-                // Verify the user is either the doctor or the patient for this appointment
-                if (appointment.doctorId !== user.id && appointment.patientId !== user.id) {
-                        throw new Error("You are not authorized to join this call");
-                }
-
-                // Verify the appointment is scheduled
-                if (appointment.status !== "SCHEDULED") {
-                        throw new Error("This appointment is not currently scheduled");
-                }
-
-                // Verify the appointment is within a valid time range (e.g., starting 5 minutes before scheduled time)
-                const now = new Date();
-                const appointmentTime = new Date(appointment.startTime);
-                const timeDifference = (appointmentTime.getTime() - now.getTime()) / (1000 * 60); // difference in minutes
-
-                if (timeDifference > 30) {
-                        throw new Error(
-                                "The call will be available 30 minutes before the scheduled time"
-                        );
-                }
-
-                // Generate a token for the video session
-                // Token expires 2 hours after the appointment start time
-                const appointmentEndTime = new Date(appointment.endTime);
-                const expirationTime =
-                        Math.floor(appointmentEndTime.getTime() / 1000) + 60 * 60; // 1 hour after end time
-
-                // Ensure videoSessionId is not null
-                if (!appointment.videoSessionId) {
-                        throw new Error("Video session ID is missing for this appointment");
-                }
-
-                // Use user's name and role as connection data
-                const connectionData = JSON.stringify({
-                        name: user.name,
-                        role: user.role,
-                        userId: user.id,
-                });
-
-                // Generate the token with appropriate role and expiration
-                const token: string = vonage.video.generateClientToken(appointment.videoSessionId, {
-                        role: "publisher", // Both doctor and patient can publish streams
-                        expireTime: expirationTime,
-                        data: connectionData,
-                });
-
-                // Update the appointment with the token
-                await db.appointment.update({
-                        where: {
-                                id: appointmentId,
-                        },
-                        data: {
-                                videoSessionToken: token,
-                        },
-                });
-
-                return {
-                        success: true,
-                        videoSessionId: appointment.videoSessionId,
-                        token: token,
-                };
-        } catch (error) {
-                console.error("Failed to generate video token:", error);
-                throw new Error("Failed to generate video token:" + (error instanceof Error ? error.message : String(error)));
         }
 }
