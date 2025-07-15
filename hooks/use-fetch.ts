@@ -24,7 +24,6 @@ function useFetch<TArgs extends unknown[], TResponse>(
                 async (...args: TArgs): Promise<TResponse | undefined> => {
                         setLoading(true);
                         setError(null);
-
                         try {
                                 const response = await cb(...args);
                                 setData(response);

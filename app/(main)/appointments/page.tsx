@@ -6,15 +6,12 @@ import { getCurrentUser } from "@/actions/onboading";
 import { PageHeader } from "@/components/page-headers";
 import { AppointmentCard } from "@/components/appointment-card";
 
-
 export default async function PatientAppointmentsPage() {
         const user = await getCurrentUser();
-
         if (!user || user.role !== "PATIENT") {
                 redirect("/onboarding");
         }
         const { appointments = [], error } = await getPatientAppointments();
-
         return (
                 <div className="container mx-auto px-4 py-8 ">
                         <PageHeader
